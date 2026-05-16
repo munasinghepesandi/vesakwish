@@ -122,14 +122,14 @@
 }
 
 /* Slight vertical offset for the hero header to move it a bit lower */
-.hero-header { margin-top: 2.1rem; }
+.hero-header { margin-top: 3.7rem; }
 
 @media (min-width: 640px) {
-  .hero-header { margin-top: 4.8rem; }
+  .hero-header { margin-top: 4.5rem; }
 }
 
 @media (min-width: 1024px) {
-  .hero-header { margin-top: 6rem; }
+  .hero-header { margin-top: 0.5rem; }
 }
 
 /* hide native scrollbar but keep scroll functionality */
