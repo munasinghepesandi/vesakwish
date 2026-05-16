@@ -4,7 +4,7 @@ import vskvid from './assets/vskvid.mp4'
 
 // ⚠️ Realtime Database එකට අදාළ නිවැරදි Imports මෙන්න:
 import { initializeApp } from 'firebase/app'
-import { getDatabase, ref, push, onValue, query, limitToLast } from 'firebase/database'
+import { getDatabase, ref, push, onValue, query, limitToLast, remove } from 'firebase/database'
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBcsX1C4SpuOL7aUyvzMDMFKdivccFrXyM',
@@ -34,11 +34,11 @@ function App() {
   // small company label shown above the CTA (change as needed)
   const COMPANY_NAME = 'PM Technologies'
 
-  // 🔄 Database එකෙන් පැතුම් Real-time කියවීම (latest 20 සීමා)
+  // 🔄 Database එකෙන් පැතුම් Real-time කියවීම (latest 10 සීමා)
   useEffect(() => {
     const wishesRef = ref(db, 'wishes')
-    // limitToLast(20) — firebase side එකේ load කරන එක limit කරනවා = better performance
-    const q = query(wishesRef, limitToLast(20))
+    // limitToLast(10) — firebase side එකේ load කරන එක limit කරනවා = better performance
+    const q = query(wishesRef, limitToLast(10))
 
     return onValue(
       q,
@@ -106,6 +106,21 @@ function App() {
     }
   }
 
+    // Delete a wish by id (asks for confirmation)
+    const handleDelete = async (id) => {
+      if (!id) return
+      const ok = window.confirm('Delete this wish? This cannot be undone.')
+      if (!ok) return
+
+      try {
+        await remove(ref(db, `wishes/${id}`))
+        console.debug('Wish removed:', id)
+      } catch (err) {
+        console.error('Failed to remove wish', err)
+        alert('Failed to delete wish: ' + (err && err.message ? err.message : err))
+      }
+    }
+
   // clear lastSentWish after DISPLAY_MS
   useEffect(() => {
     if (!lastSentWish) return
@@ -156,9 +171,22 @@ function App() {
               <ul className="space-y-3">
                 {wishes.slice().map((w) => (
                   <li key={w.id} className="rounded-lg border border-white/8 bg-white/6 p-3 text-sm">
-                    <div className="text-[11px] text-amber-100/80 uppercase tracking-[0.25em]">{w.name}</div>
+                    <div className="flex items-start justify-between">
+                      <div className="text-[11px] text-amber-100/80 uppercase tracking-[0.25em]">{w.name}</div>
+                      <button
+                        type="button"
+                        aria-label={`Delete wish from ${w.name}`}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleDelete(w.id)
+                        }}
+                        className="ml-3 rounded px-2 py-1 text-xs font-semibold text-red-200 hover:text-red-300"
+                      >
+                        Delete
+                      </button>
+                    </div>
+
                     <div className="mt-1 text-white/92">{w.message}</div>
-                    
                   </li>
                 ))}
               </ul>
@@ -229,7 +257,7 @@ function App() {
                   Offer a blessing
                 </p>
                 <h2 className="mt-3 text-2xl font-semibold text-amber-50 sm:text-3xl">
-                  Add your wish to the lantern sky
+                  Add your wish to the sky
                 </h2>
               </div>
 
