@@ -1,0 +1,12 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Optional: set context-specific settings if you need branch-specific behavior
+[context.production.environment]
+# Example: force a Node version (Netlify may use package.json engines)
+# NODE_VERSION = "20.19.0"
+
+[dev]
+  # Local dev server command when using `netlify dev` (optional)
+  command = "npm run dev"
