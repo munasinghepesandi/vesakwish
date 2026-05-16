@@ -220,13 +220,7 @@ function App() {
           <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/55 px-4 py-6 backdrop-blur-xl">
             <div className="absolute inset-0" onClick={closeModal} aria-hidden="true" />
             <div className="relative w-full max-w-[95vw] sm:max-w-xl rounded-4xl border border-white/15 bg-white/10 p-4 sm:p-6 shadow-[0_24px_120px_rgba(0,0,0,0.65)] backdrop-blur-2xl">
-              <button
-                type="button"
-                onClick={closeModal}
-                className="absolute right-4 top-4 rounded-full border border-white/10 bg-black/25 px-3 py-2 text-xs uppercase tracking-[0.25em] text-white/70 transition hover:bg-black/45 hover:text-white"
-              >
-                Close
-              </button>
+              
 
               <div className="mb-6 max-w-md">
                 <p className="text-xs uppercase tracking-[0.45em] text-amber-100/70">
