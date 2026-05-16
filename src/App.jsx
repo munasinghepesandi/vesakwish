@@ -4,7 +4,7 @@ import vskvid from './assets/vskvid.mp4'
 
 // ⚠️ Realtime Database එකට අදාළ නිවැරදි Imports මෙන්න:
 import { initializeApp } from 'firebase/app'
-import { getDatabase, ref, push, onValue } from 'firebase/database'
+import { getDatabase, ref, push, onValue, query, limitToLast } from 'firebase/database'
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBcsX1C4SpuOL7aUyvzMDMFKdivccFrXyM',
@@ -34,12 +34,14 @@ function App() {
   // small company label shown above the CTA (change as needed)
   const COMPANY_NAME = 'PM Technologies'
 
-  // 🔄 Database එකෙන් පැතුම් Real-time කියවීම
+  // 🔄 Database එකෙන් පැතුම් Real-time කියවීම (latest 20 සීමා)
   useEffect(() => {
     const wishesRef = ref(db, 'wishes')
+    // limitToLast(20) — firebase side එකේ load කරන එක limit කරනවා = better performance
+    const q = query(wishesRef, limitToLast(20))
 
     return onValue(
-      wishesRef,
+      q,
       (snapshot) => {
         const data = snapshot.val()
         console.debug('Realtime Database data received:', data)
