@@ -1,0 +1,263 @@
+.wish-card {
+  animation-name: wish-float;
+  animation-timing-function: cubic-bezier(0.2, 0.65, 0.2, 1);
+  animation-fill-mode: both;
+  animation-iteration-count: infinite;
+}
+
+/* Force horizontal centering for all wish cards */
+.wish-card {
+  /* allow per-wish left positions coming from JS */
+}
+
+@keyframes wish-float {
+  0% {
+    transform: translateX(-50%) translateY(0) scale(0.98);
+    opacity: 1;
+    filter: blur(0px);
+  }
+
+  50% {
+    transform: translateX(-50%) translateY(-14px) scale(1.01);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(-50%) translateY(0) scale(0.98);
+    opacity: 1;
+    filter: blur(0px);
+  }
+}
+
+@media (max-width: 640px) {
+  .wish-card {
+    animation-name: wish-float-mobile;
+  }
+
+  @keyframes wish-float-mobile {
+    0% { transform: translateX(-50%) translateY(0) scale(0.98); opacity: 1; }
+    50% { transform: translateX(-50%) translateY(-10px) scale(1.01); opacity: 1; }
+    100% { transform: translateX(-50%) translateY(0) scale(0.98); opacity: 1; }
+  }
+}
+
+/* Responsive layout tweaks for wish cards */
+.wish-card {
+  box-sizing: border-box;
+  max-width: 21rem;
+}
+
+@media (max-width: 1024px) {
+  .wish-card {
+    max-width: 19rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .wish-card {
+    width: 82vw !important;
+    padding: 0.55rem 0.75rem !important;
+    border-radius: 0.95rem !important;
+  }
+
+  .wish-from {
+    font-size: 9px;
+    letter-spacing: 0.26em;
+  }
+
+  .wish-message {
+    font-size: 0.9rem;
+    line-height: 1.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wish-card {
+    animation: none;
+  }
+}
+
+/* Left-side persistent list */
+.wish-list-panel {
+  position: fixed;
+  left: 1rem;
+  top: 6.5rem;
+  width: 320px;
+  max-height: calc(100vh - 8rem);
+  overflow: auto;
+  padding: 1rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.22));
+  border-radius: 1rem;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+}
+
+/* Floating recent wish container */
+.floating-container {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.floating-wish {
+  position: relative;
+  margin-top: 6vh;
+  z-index: 50;
+  pointer-events: auto;
+}
+
+/* floating appear + exit animation */
+.floating-appear {
+  animation: floating-appear-animation 4s cubic-bezier(.2,.8,.2,1) forwards;
+}
+
+@keyframes floating-appear-animation {
+  0% { opacity: 0; transform: translateY(8px) scale(0.98); }
+  10% { opacity: 1; transform: translateY(0) scale(1); }
+  80% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-36px) scale(0.98); }
+}
+
+/* Slight vertical offset for the hero header to move it a bit lower */
+.hero-header { margin-top: 2.1rem; }
+
+@media (min-width: 640px) {
+  .hero-header { margin-top: 4.8rem; }
+}
+
+@media (min-width: 1024px) {
+  .hero-header { margin-top: 6rem; }
+}
+
+/* hide native scrollbar but keep scroll functionality */
+.wish-list-panel {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.wish-list-panel::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* polish list items */
+.wish-list-panel ul { padding: 0; margin: 0; list-style: none; }
+.wish-list-panel li { transition: background .15s ease, transform .15s ease; }
+.wish-list-panel li:hover { background: rgba(255,255,255,0.03); transform: translateY(-2px); }
+.wish-list-panel li > div:first-child { font-weight: 600; }
+
+/* Panel toggle button (hidden on larger screens) */
+.panel-toggle {
+  display: none; /* hidden on large screens */
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.45);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.06);
+  min-width: 44px;
+  height: 44px;
+  padding: 6px;
+  border-radius: 10rem;
+  font-size: 13px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+  transition: transform 160ms ease, background 160ms ease;
+  gap: 8px;
+}
+
+/* overlay used when mobile panel is open */
+.panel-overlay { display: none; }
+
+@media (max-width: 640px) {
+  /* hide persistent left panel off-canvas by default */
+  .wish-list-panel {
+    left: 0.5rem;
+    top: 4.5rem;
+    width: 84vw;
+    max-width: 320px;
+    transform: translateX(-120%);
+    transition: transform 220ms ease;
+    z-index: 40;
+    pointer-events: none;
+  }
+
+  .wish-list-panel.open {
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .panel-toggle { display: inline-flex; padding: 6px 12px; }
+
+.panel-toggle-label {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ffeab3;
+  display: none; /* hide label by default */
+}
+
+@media (max-width: 640px) {
+  .panel-toggle-label { display: inline-block; }
+}
+
+  .panel-overlay { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 38; }
+
+  /* ensure floating wish stays above overlay */
+  .floating-container { z-index: 45; }
+}
+
+/* Company label above the CTA */
+.cta-company {
+  text-align: center;
+  font-size: 11px;
+  color: rgba(255,230,179,0.95);
+  margin-bottom: 0.45rem;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: inline-block;
+  padding: 0.18rem 0.6rem;
+  border-radius: 999px;
+}
+
+@media (max-width: 640px) {
+  .cta-company { font-size: 10px; margin-bottom: 0.35rem; padding: 0.14rem 0.5rem; }
+}
+
+/* Additional responsive refinements */
+@media (max-width: 640px) {
+  /* Hero */
+  .hero-header h1 { font-size: 2rem !important; line-height: 1.02 !important; margin-top: 0.6rem !important; }
+  .hero-header p { font-size: 0.95rem !important; }
+  .hero-header .inline-flex { padding: 0.35rem 0.75rem !important; font-size: 10px !important; }
+
+  /* CTA button smaller on mobile */
+  .fixed.bottom-6.left-1\/2 .group { padding-top: 0.6rem; padding-bottom: 0.6rem; padding-left: 1rem; padding-right: 1rem; font-size: 14px; }
+
+  /* Floating wish sizing */
+  .floating-wish { max-width: 88vw; padding: 0.75rem 0.9rem; border-radius: 0.9rem; }
+
+  /* Modal inputs and buttons comfortable on small screens */
+  .fixed.inset-0 input, .fixed.inset-0 textarea { font-size: 15px; padding: 0.9rem 0.9rem; }
+  .fixed.inset-0 button[type="submit"], .fixed.inset-0 button[type="button"] { padding: 0.7rem 1rem; }
+
+  /* Left panel narrower on small screens when open */
+  .wish-list-panel.open { width: 86vw; max-width: 320px; }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  /* Tablet adjustments */
+  .hero-header h1 { font-size: 2.75rem !important; }
+  .hero-header p { font-size: 1rem !important; }
+  .wish-list-panel { width: 260px; }
+  .floating-wish { max-width: 60vw; }
+  .fixed.bottom-6.left-1\/2 .group { max-width: 34rem; }
+}
+
+/* Reduced motion fallback ensures legible static layout on small devices */
+@media (prefers-reduced-motion: reduce) {
+  .floating-appear { animation: none !important; }
+}
