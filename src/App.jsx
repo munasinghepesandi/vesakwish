@@ -271,8 +271,8 @@ function App() {
                 </h2>
               </div>
 
-              // eslint-disable-next-line no-undef, no-undef
-              <form className="space-y-4" onSubmit={onSubmit || handleSubmit}>
+              {/* // eslint-disable-next-line no-undef, no-undef */}
+              <form className="space-y-4" onSubmit={ handleSubmit}>
                 <label className="block space-y-2">
                   <span className="text-sm text-white/80">Name</span>
                   <input
