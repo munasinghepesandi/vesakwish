@@ -153,7 +153,7 @@ function App() {
           // 💡 යම් හෙයකින් වීඩියෝ එක ලෝඩ් නොවී Fail වුණොත් කළු පාට නැතුව පේන්න ලස්සන Gradient එකක්
           <div className="absolute inset-0 bg-gradient-to-b from-neutral-950 via-amber-950/20 to-neutral-950" />
         )}
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.18),transparent_40%),radial-gradient(circle_at_bottom,rgba(255,255,255,0.08),transparent_30%)]" />
       </div>
 
