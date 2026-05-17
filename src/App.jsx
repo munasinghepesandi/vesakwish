@@ -1,6 +1,9 @@
+/* eslint-disable no-undef */
 import { useEffect, useState } from 'react'
 import './App.css'
-import vskvid from './assets/vskvid.mp4'
+
+// ⚠️ Google Drive Direct Streaming Link එක මෙන්න:
+const backgroundVideoUrl = 'https://res.cloudinary.com/dyh9coxt5/video/upload/w_640,c_scale,q_50,vc_h264/v1778987420/vskvid_jmwdpn.mp4'
 
 // ⚠️ Realtime Database එකට අදාළ නිවැරදි Imports මෙන්න:
 import { initializeApp } from 'firebase/app'
@@ -22,6 +25,7 @@ const db = getDatabase(app)
 
 function App() {
   const [isMuted, setIsMuted] = useState(true)
+  const [videoFailed, setVideoFailed] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [name, setName] = useState('')
   const [message, setMessage] = useState('')
@@ -37,7 +41,6 @@ function App() {
   // 🔄 Database එකෙන් පැතුම් Real-time කියවීම (latest 10 සීමා)
   useEffect(() => {
     const wishesRef = ref(db, 'wishes')
-    // limitToLast(10) — firebase side එකේ load කරන එක limit කරනවා = better performance
     const q = query(wishesRef, limitToLast(10))
 
     return onValue(
@@ -45,7 +48,7 @@ function App() {
       (snapshot) => {
         const data = snapshot.val()
         console.debug('Realtime Database data received:', data)
-          if (data) {
+        if (data) {
           const list = Object.keys(data)
             .map((key) => ({ id: key, ...data[key] }))
             .reverse()
@@ -106,20 +109,20 @@ function App() {
     }
   }
 
-    // Delete a wish by id (asks for confirmation)
-    const handleDelete = async (id) => {
-      if (!id) return
-      const ok = window.confirm('Delete this wish? This cannot be undone.')
-      if (!ok) return
+  // Delete a wish by id (asks for confirmation)
+  const handleDelete = async (id) => {
+    if (!id) return
+    const ok = window.confirm('Delete this wish? This cannot be undone.')
+    if (!ok) return
 
-      try {
-        await remove(ref(db, `wishes/${id}`))
-        console.debug('Wish removed:', id)
-      } catch (err) {
-        console.error('Failed to remove wish', err)
-        alert('Failed to delete wish: ' + (err && err.message ? err.message : err))
-      }
+    try {
+      await remove(ref(db, `wishes/${id}`))
+      console.debug('Wish removed:', id)
+    } catch (err) {
+      console.error('Failed to remove wish', err)
+      alert('Failed to delete wish: ' + (err && err.message ? err.message : err))
     }
+  }
 
   // clear lastSentWish after DISPLAY_MS
   useEffect(() => {
@@ -131,16 +134,26 @@ function App() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-black text-white">
       <div className="absolute inset-0">
-        <video
-          className="absolute inset-0 h-full w-full object-cover scale-110 border-0 opacity-95"
-          src={vskvid}
-          title="Vesak background video"
-          autoPlay
-          loop
-          playsInline
-          muted={isMuted}
-        />
-        <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
+        {!videoFailed ? (
+          <video
+            className="absolute inset-0 h-full w-full object-cover scale-110 border-0 opacity-95"
+            src={backgroundVideoUrl}
+            title="Vesak background video"
+            autoPlay
+            loop
+            playsInline
+            muted={isMuted}
+            preload="auto" // ⚡ වේගයෙන් ලෝඩ් කරගන්න 'auto' ලෙස වෙනස් කළා
+            onError={(e) => {
+              console.error("Video play failed:", e);
+              setVideoFailed(true);
+            }}
+          />
+        ) : (
+          // 💡 යම් හෙයකින් වීඩියෝ එක ලෝඩ් නොවී Fail වුණොත් කළු පාට නැතුව පේන්න ලස්සන Gradient එකක්
+          <div className="absolute inset-0 bg-gradient-to-b from-neutral-950 via-amber-950/20 to-neutral-950" />
+        )}
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.18),transparent_40%),radial-gradient(circle_at_bottom,rgba(255,255,255,0.08),transparent_30%)]" />
       </div>
 
@@ -166,41 +179,40 @@ function App() {
         </header>
 
         {/* Wishes Display Area */}
-            <aside className={`wish-list-panel z-20 pointer-events-auto ${panelOpen ? 'open' : ''}`}>
-              <h3 className="mb-3 text-xs uppercase tracking-[0.35em] text-amber-100/80">Wishes</h3>
-              <ul className="space-y-3">
-                {wishes.slice().map((w) => (
-                  <li key={w.id} className="rounded-lg border border-white/8 bg-white/6 p-3 text-sm">
-                    <div className="flex items-start justify-between">
-                      <div className="text-[11px] text-amber-100/80 uppercase tracking-[0.25em]">{w.name}</div>
-                      <button
-                        type="button"
-                        aria-label={`Delete wish from ${w.name}`}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleDelete(w.id)
-                        }}
-                        className="ml-3 rounded px-2 py-1 text-xs font-semibold text-red-200 hover:text-red-300"
-                      >
-                        Delete
-                      </button>
-                    </div>
+        <aside className={`wish-list-panel z-20 pointer-events-auto ${panelOpen ? 'open' : ''}`}>
+          <h3 className="mb-3 text-xs uppercase tracking-[0.35em] text-amber-100/80">Wishes</h3>
+          <ul className="space-y-3">
+            {wishes.slice().map((w) => (
+              <li key={w.id} className="rounded-lg border border-white/8 bg-white/6 p-3 text-sm">
+                <div className="flex items-start justify-between">
+                  <div className="text-[11px] text-amber-100/80 uppercase tracking-[0.25em]">{w.name}</div>
+                  <button
+                    type="button"
+                    aria-label={`Delete wish from ${w.name}`}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleDelete(w.id)
+                    }}
+                    className="ml-3 rounded px-2 py-1 text-xs font-semibold text-red-200 hover:text-red-300"
+                  >
+                    Delete
+                  </button>
+                </div>
+                <div className="mt-1 text-white/92">{w.message}</div>
+              </li>
+            ))}
+          </ul>
+        </aside>
 
-                    <div className="mt-1 text-white/92">{w.message}</div>
-                  </li>
-                ))}
-              </ul>
-            </aside>
-
-            {/* Floating recent wish (shows only the last-sent message briefly) */}
-            {lastSentWish ? (
-              <div className="floating-container pointer-events-none">
-                <article className="wish-card floating-wish floating-appear pointer-events-auto">
-                  <p className="wish-from text-[10px] uppercase tracking-[0.3em] text-amber-100/70">Wish from {lastSentWish.name}</p>
-                  <p className="wish-message mt-2.5 text-[0.92rem] leading-6 text-white/92 sm:text-[0.98rem]">{lastSentWish.message}</p>
-                </article>
-              </div>
-            ) : null}
+        {/* Floating recent wish */}
+        {lastSentWish ? (
+          <div className="floating-container pointer-events-none">
+            <article className="wish-card floating-wish floating-appear pointer-events-auto">
+              <p className="wish-from text-[10px] uppercase tracking-[0.3em] text-amber-100/70">Wish from {lastSentWish.name}</p>
+              <p className="wish-message mt-2.5 text-[0.92rem] leading-6 text-white/92 sm:text-[0.98rem]">{lastSentWish.message}</p>
+            </article>
+          </div>
+        ) : null}
 
         <div className="fixed right-4 top-4 z-30 sm:right-8 sm:top-8">
           <button
@@ -213,7 +225,7 @@ function App() {
           </button>
         </div>
 
-        {/* Mobile: navbar-like icon to open/close wishes panel */}
+        {/* Mobile menu toggle */}
         <div className="fixed left-4 top-4 z-40">
           <button
             type="button"
@@ -231,7 +243,6 @@ function App() {
           </button>
         </div>
 
-        {/* overlay when mobile panel open */}
         {panelOpen ? <div className="panel-overlay" onClick={() => setPanelOpen(false)} aria-hidden /> : null}
 
         <div className="fixed bottom-10 left-1/2 z-30 w-full max-w-xl -translate-x-1/2 px-5 sm:bottom-12">
@@ -245,13 +256,12 @@ function App() {
           </button>
         </div>
 
-          <div className="cta-company">- {COMPANY_NAME} -</div>
+        <div className="cta-company">- {COMPANY_NAME} -</div>
+
         {isModalOpen ? (
           <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/55 px-4 py-6 backdrop-blur-xl">
             <div className="absolute inset-0" onClick={closeModal} aria-hidden="true" />
             <div className="relative w-full max-w-[95vw] sm:max-w-xl rounded-4xl border border-white/15 bg-white/10 p-4 sm:p-6 shadow-[0_24px_120px_rgba(0,0,0,0.65)] backdrop-blur-2xl">
-              
-
               <div className="mb-6 max-w-md">
                 <p className="text-xs uppercase tracking-[0.45em] text-amber-100/70">
                   Offer a blessing
@@ -261,7 +271,8 @@ function App() {
                 </h2>
               </div>
 
-              <form className="space-y-4" onSubmit={handleSubmit}>
+              // eslint-disable-next-line no-undef, no-undef
+              <form className="space-y-4" onSubmit={onSubmit || handleSubmit}>
                 <label className="block space-y-2">
                   <span className="text-sm text-white/80">Name</span>
                   <input
