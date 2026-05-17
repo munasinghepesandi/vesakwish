@@ -280,7 +280,7 @@ function App() {
                     value={name}
                     onChange={(event) => setName(event.target.value)}
                     required
-                    placeholder="Your name"
+                    placeholder="නම"
                     className="w-full rounded-2xl border border-white/12 bg-black/25 px-4 py-3 text-white placeholder:text-white/38 outline-none transition focus:border-amber-300/50 focus:bg-black/35"
                   />
                 </label>
@@ -292,7 +292,7 @@ function App() {
                     onChange={(event) => setMessage(event.target.value)}
                     required
                     rows="5"
-                    placeholder="Write a heartfelt blessing..."
+                    placeholder="ආශිර්වාදයක් ලියන්න..."
                     className="w-full resize-none rounded-2xl border border-white/12 bg-black/25 px-4 py-3 text-white placeholder:text-white/38 outline-none transition focus:border-amber-300/50 focus:bg-black/35"
                   />
                 </label>
