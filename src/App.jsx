@@ -26,6 +26,22 @@ const db = getDatabase(app)
 function App() {
   const [isMuted, setIsMuted] = useState(true)
   const [videoFailed, setVideoFailed] = useState(false)
+  // persistent per-browser owner id so users can only delete their own wishes
+  const OWNER_KEY = 'vesak_owner_id'
+  const [ownerId] = useState(() => {
+    try {
+      if (typeof window === 'undefined') return 'owner_unknown'
+      const ls = window.localStorage
+      let id = ls.getItem(OWNER_KEY)
+      if (!id) {
+        id = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'owner_' + Math.random().toString(36).slice(2)
+        ls.setItem(OWNER_KEY, id)
+      }
+      return id
+    } catch (e) {
+      return 'owner_unknown'
+    }
+  })
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [name, setName] = useState('')
   const [message, setMessage] = useState('')
@@ -92,6 +108,7 @@ function App() {
         left,
         name: trimmedName,
         message: trimmedMessage,
+        ownerId,
         duration,
         createdAt,
       })
@@ -110,19 +127,24 @@ function App() {
   }
 
   // Delete a wish by id (asks for confirmation)
-  const handleDelete = async (id) => {
-    if (!id) return
-    const ok = window.confirm('Delete this wish? This cannot be undone.')
-    if (!ok) return
+    const handleDelete = async (id, wishOwnerId) => {
+      if (!id) return
+      // only allow delete if this browser is the owner
+      if (!wishOwnerId || wishOwnerId !== ownerId) {
+        alert('You can only delete your own wishes from this device.')
+        return
+      }
+      const ok = window.confirm('Delete this wish? This cannot be undone.')
+      if (!ok) return
 
-    try {
-      await remove(ref(db, `wishes/${id}`))
-      console.debug('Wish removed:', id)
-    } catch (err) {
-      console.error('Failed to remove wish', err)
-      alert('Failed to delete wish: ' + (err && err.message ? err.message : err))
+      try {
+        await remove(ref(db, `wishes/${id}`))
+        console.debug('Wish removed:', id)
+      } catch (err) {
+        console.error('Failed to remove wish', err)
+        alert('Failed to delete wish: ' + (err && err.message ? err.message : err))
+      }
     }
-  }
 
   // clear lastSentWish after DISPLAY_MS
   useEffect(() => {
@@ -186,17 +208,19 @@ function App() {
               <li key={w.id} className="rounded-lg border border-white/8 bg-white/6 p-3 text-sm">
                 <div className="flex items-start justify-between">
                   <div className="text-[11px] text-amber-100/80 uppercase tracking-[0.25em]">{w.name}</div>
-                  <button
-                    type="button"
-                    aria-label={`Delete wish from ${w.name}`}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleDelete(w.id)
-                    }}
-                    className="ml-3 rounded px-2 py-1 text-xs font-semibold text-red-200 hover:text-red-300"
-                  >
-                    Delete
-                  </button>
+                      {w.ownerId && w.ownerId === ownerId ? (
+                        <button
+                          type="button"
+                          aria-label={`Delete wish from ${w.name}`}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleDelete(w.id, w.ownerId)
+                          }}
+                          className="ml-3 rounded px-2 py-1 text-xs font-semibold text-red-200 hover:text-red-300"
+                        >
+                          Delete
+                        </button>
+                      ) : null}
                 </div>
                 <div className="mt-1 text-white/92">{w.message}</div>
               </li>
